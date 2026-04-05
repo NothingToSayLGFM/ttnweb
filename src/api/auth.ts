@@ -1,0 +1,25 @@
+import client from './client'
+import type { User } from '@/types'
+
+export const authApi = {
+  register: (email: string, name: string, password: string) =>
+    client.post<User>('/auth/register', { email, name, password }),
+
+  login: (email: string, password: string) =>
+    client.post<{ access_token: string; refresh_token: string; expires_in: number; user: User }>(
+      '/auth/login',
+      { email, password }
+    ),
+
+  logout: (refreshToken: string) =>
+    client.post('/auth/logout', { refresh_token: refreshToken }),
+
+  me: () => client.get<User>('/me'),
+
+  updateMe: (data: { name?: string; password?: string }) => client.patch<User>('/me', data),
+
+  updateAPIKey: (api_key: string) => client.put('/me/api-key', { api_key }),
+
+  mySubscription: () =>
+    client.get<{ active: boolean; starts_at?: string; ends_at?: string }>('/me/subscription'),
+}

@@ -10,6 +10,9 @@ export const sessionApi = {
   get: (id: string) =>
     client.get<{ session: Session; ttns: SessionTTN[] }>(`/sessions/${id}`),
 
+  saveTTNs: (id: string, ttns: Partial<SessionTTN>[]) =>
+    client.put(`/sessions/${id}/ttns`, { ttns }),
+
   finish: (id: string, ttns: Partial<SessionTTN>[], status = 'done') =>
     client.patch<Session>(`/sessions/${id}`, { status, ttns }),
 

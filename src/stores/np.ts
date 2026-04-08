@@ -23,6 +23,14 @@ export const useNPStore = defineStore('np', () => {
       const { data } = await npApi.validate(ttns)
       results.value = data.results
       groups.value = data.groups
+
+      // Save TTNs immediately so history shows results even without distribute
+      await sessionApi.saveTTNs(session.data.id, data.results.map((r) => ({
+        ttn: r.ttn,
+        status: r.status,
+        message: r.message ?? '',
+        registry: '',
+      })))
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : 'Помилка валідації'
       error.value = msg

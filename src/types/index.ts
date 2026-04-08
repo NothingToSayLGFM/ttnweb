@@ -6,6 +6,15 @@ export interface User {
   created_at: string
 }
 
+export interface NPAPIKey {
+  id: string
+  user_id: string
+  label: string
+  api_key: string
+  is_active: boolean
+  created_at: string
+}
+
 export interface SubscriptionStatus {
   active: boolean
   starts_at?: string

@@ -21,15 +21,24 @@ export const useAuthStore = defineStore('auth', () => {
 
   async function init() {
     const stored = localStorage.getItem('refresh_token')
+    console.log('[auth:init] stored token:', stored ? stored.slice(0, 8) + '...' : 'null')
     if (!stored) return
     try {
       const { data } = await import('axios').then((m) =>
         m.default.post('/api/v1/auth/refresh', { refresh_token: stored })
       )
+      console.log('[auth:init] refresh response:', JSON.stringify(data))
       setTokens(data.access_token, data.refresh_token)
+      console.log('[auth:init] accessToken set:', !!accessToken.value)
+    } catch (e) {
+      console.error('[auth:init] refresh failed:', e)
+      return
+    }
+    try {
       await loadMe()
-    } catch {
-      logout()
+      console.log('[auth:init] loadMe ok, user:', user.value?.email)
+    } catch (e) {
+      console.error('[auth:init] loadMe failed:', e)
     }
   }
 

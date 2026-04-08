@@ -12,57 +12,57 @@ function logout() {
 </script>
 
 <template>
-  <div class="flex h-screen bg-gray-950 text-white overflow-hidden">
+  <div class="flex h-screen bg-gray-900 text-white overflow-hidden">
     <!-- Sidebar -->
-    <aside class="w-56 shrink-0 bg-gray-900 border-r border-gray-800 flex flex-col">
-      <div class="px-4 py-5 border-b border-gray-800">
+    <aside class="w-56 shrink-0 bg-gray-800 border-r border-gray-700 flex flex-col">
+      <div class="px-4 py-5 border-b border-gray-700">
         <span class="text-blue-400 font-bold text-lg">TTNFlow</span>
       </div>
 
       <nav class="flex-1 px-2 py-4 space-y-1 overflow-y-auto">
         <RouterLink
           to="/scanner"
-          class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-gray-300 hover:bg-gray-800 hover:text-white transition"
-          active-class="bg-gray-800 text-white"
+          class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-gray-200 hover:bg-gray-700 hover:text-white transition"
+          active-class="bg-gray-700 text-white"
         >
           Scanner
         </RouterLink>
         <RouterLink
           to="/history"
-          class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-gray-300 hover:bg-gray-800 hover:text-white transition"
-          active-class="bg-gray-800 text-white"
+          class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-gray-200 hover:bg-gray-700 hover:text-white transition"
+          active-class="bg-gray-700 text-white"
         >
           Історія
         </RouterLink>
         <RouterLink
           to="/profile"
-          class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-gray-300 hover:bg-gray-800 hover:text-white transition"
-          active-class="bg-gray-800 text-white"
+          class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-gray-200 hover:bg-gray-700 hover:text-white transition"
+          active-class="bg-gray-700 text-white"
         >
           Профіль
         </RouterLink>
 
         <template v-if="auth.isAdmin">
-          <div class="pt-3 pb-1 px-3 text-xs text-gray-500 uppercase tracking-wider">Адмін</div>
+          <div class="pt-3 pb-1 px-3 text-xs text-gray-400 uppercase tracking-wider">Адмін</div>
           <RouterLink
             to="/admin/users"
-            class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-gray-300 hover:bg-gray-800 hover:text-white transition"
-            active-class="bg-gray-800 text-white"
+            class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-gray-200 hover:bg-gray-700 hover:text-white transition"
+            active-class="bg-gray-700 text-white"
           >
             Користувачі
           </RouterLink>
           <RouterLink
             to="/admin/sessions"
-            class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-gray-300 hover:bg-gray-800 hover:text-white transition"
-            active-class="bg-gray-800 text-white"
+            class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-gray-200 hover:bg-gray-700 hover:text-white transition"
+            active-class="bg-gray-700 text-white"
           >
             Всі сесії
           </RouterLink>
         </template>
       </nav>
 
-      <div class="px-4 py-4 border-t border-gray-800">
-        <p class="text-xs text-gray-500 truncate mb-2">{{ auth.user?.email }}</p>
+      <div class="px-4 py-4 border-t border-gray-700">
+        <p class="text-xs text-gray-400 truncate mb-2">{{ auth.user?.email }}</p>
         <button
           @click="logout"
           class="w-full text-left text-sm text-red-400 hover:text-red-300 transition"

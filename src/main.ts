@@ -10,10 +10,11 @@ import { useAuthStore } from './stores/auth'
 const pinia = createPinia()
 const app = createApp(App)
 app.use(pinia)
-app.use(router)
 
-// Init auth from stored refresh token before first navigation
+// Init auth BEFORE registering router so the first navigation guard
+// already sees the correct isAuthenticated state
 const auth = useAuthStore()
 auth.init().finally(() => {
+  app.use(router)
   app.mount('#app')
 })

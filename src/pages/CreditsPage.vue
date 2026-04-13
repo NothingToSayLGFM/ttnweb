@@ -5,7 +5,7 @@ import { useAuthStore } from '@/stores/auth'
 const auth = useAuthStore()
 
 const PRICE_PER_TTN = 1 // ₴ per TTN
-const TELEGRAM_URL = 'https://t.me/your_telegram'
+const TELEGRAM_URL = 'https://t.me/NothingToSayH'
 
 const quantity = ref(100)
 

@@ -1,5 +1,5 @@
 import client from './client'
-import type { User, Subscription, Paginated } from '@/types'
+import type { User, Paginated } from '@/types'
 
 export const adminApi = {
   listUsers: (limit = 20, offset = 0) =>
@@ -12,11 +12,6 @@ export const adminApi = {
 
   deleteUser: (id: string) => client.delete(`/admin/users/${id}`),
 
-  listSubscriptions: (userId: string) =>
-    client.get<Subscription[]>(`/admin/users/${userId}/subscriptions`),
-
-  grantSubscription: (userId: string, data: { starts_at: string; ends_at: string; note?: string }) =>
-    client.post<Subscription>(`/admin/users/${userId}/subscriptions`, data),
-
-  deleteSubscription: (subId: string) => client.delete(`/admin/subscriptions/${subId}`),
+  setScanBalance: (userId: string, balance: number) =>
+    client.patch<User>(`/admin/users/${userId}/scan-balance`, { balance }),
 }

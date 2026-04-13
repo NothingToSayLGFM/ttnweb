@@ -1,17 +1,16 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { authApi } from '@/api/auth'
-import type { User, SubscriptionStatus } from '@/types'
+import type { User } from '@/types'
 
 export const useAuthStore = defineStore('auth', () => {
   const accessToken = ref<string | null>(null)
   const refreshToken = ref<string | null>(localStorage.getItem('refresh_token'))
   const user = ref<User | null>(null)
-  const subscription = ref<SubscriptionStatus | null>(null)
 
   const isAuthenticated = computed(() => !!accessToken.value)
   const isAdmin = computed(() => user.value?.role === 'admin')
-  const hasSubscription = computed(() => subscription.value?.active === true)
+  const scanBalance = computed(() => user.value?.scan_balance ?? 0)
 
   function setTokens(access: string, refresh: string) {
     accessToken.value = access
@@ -21,40 +20,31 @@ export const useAuthStore = defineStore('auth', () => {
 
   async function init() {
     const stored = localStorage.getItem('refresh_token')
-    console.log('[auth:init] stored token:', stored ? stored.slice(0, 8) + '...' : 'null')
     if (!stored) return
     try {
       const { data } = await import('axios').then((m) =>
         m.default.post('/api/v1/auth/refresh', { refresh_token: stored })
       )
-      console.log('[auth:init] refresh response:', JSON.stringify(data))
       setTokens(data.access_token, data.refresh_token)
-      console.log('[auth:init] accessToken set:', !!accessToken.value)
-    } catch (e) {
-      console.error('[auth:init] refresh failed:', e)
+    } catch {
       return
     }
     try {
       await loadMe()
-      console.log('[auth:init] loadMe ok, user:', user.value?.email)
-    } catch (e) {
-      console.error('[auth:init] loadMe failed:', e)
+    } catch {
+      // ignore
     }
   }
 
   async function loadMe() {
     const { data } = await authApi.me()
     user.value = data
-    const { data: sub } = await authApi.mySubscription()
-    subscription.value = sub
   }
 
   async function login(email: string, password: string) {
     const { data } = await authApi.login(email, password)
     setTokens(data.access_token, data.refresh_token)
     user.value = data.user
-    const { data: sub } = await authApi.mySubscription()
-    subscription.value = sub
   }
 
   async function register(email: string, name: string, password: string) {
@@ -69,7 +59,6 @@ export const useAuthStore = defineStore('auth', () => {
     accessToken.value = null
     refreshToken.value = null
     user.value = null
-    subscription.value = null
     localStorage.removeItem('refresh_token')
   }
 
@@ -77,10 +66,9 @@ export const useAuthStore = defineStore('auth', () => {
     accessToken,
     refreshToken,
     user,
-    subscription,
     isAuthenticated,
     isAdmin,
-    hasSubscription,
+    scanBalance,
     setTokens,
     init,
     loadMe,

@@ -11,10 +11,11 @@ const router = createRouter({
       component: () => import('@/components/layout/AppShell.vue'),
       children: [
         { path: '', redirect: '/scanner' },
-        { path: 'scanner', component: () => import('@/pages/ScannerPage.vue'), meta: { requiresSub: true } },
-        { path: 'history', component: () => import('@/pages/HistoryPage.vue'), meta: { requiresSub: true } },
+        { path: 'scanner', component: () => import('@/pages/ScannerPage.vue') },
+        { path: 'history', component: () => import('@/pages/HistoryPage.vue') },
         { path: 'history/:id', component: () => import('@/pages/SessionDetailPage.vue') },
         { path: 'profile', component: () => import('@/pages/ProfilePage.vue') },
+        { path: 'credits', component: () => import('@/pages/CreditsPage.vue') },
         {
           path: 'admin',
           meta: { requiresAdmin: true },
@@ -41,9 +42,6 @@ router.beforeEach((to) => {
   }
   if (to.meta.requiresAdmin && !auth.isAdmin) {
     return '/scanner'
-  }
-  if (to.meta.requiresSub && !auth.hasSubscription && !auth.isAdmin) {
-    return '/profile'
   }
 })
 

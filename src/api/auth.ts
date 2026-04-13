@@ -24,6 +24,9 @@ export const authApi = {
   activateAPIKey: (id: string) => client.patch(`/me/api-keys/${id}/activate`),
   deleteAPIKey: (id: string) => client.delete(`/me/api-keys/${id}`),
 
-  mySubscription: () =>
-    client.get<{ active: boolean; starts_at?: string; ends_at?: string }>('/me/subscription'),
+  downloadApp: () =>
+    client.get('/me/download-app', { responseType: 'blob' }),
+
+  resetDesktopToken: () =>
+    client.post<{ message: string }>('/me/reset-desktop-token'),
 }

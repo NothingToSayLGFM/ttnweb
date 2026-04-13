@@ -6,6 +6,42 @@ import type { NPAPIKey } from '@/types'
 
 const auth = useAuthStore()
 
+const downloading = ref(false)
+const downloadError = ref('')
+const resettingToken = ref(false)
+const tokenResetDone = ref(false)
+
+async function downloadApp() {
+  downloading.value = true
+  downloadError.value = ''
+  try {
+    const response = await authApi.downloadApp()
+    const url = URL.createObjectURL(response.data as Blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'NovaPoshtaScanner.zip'
+    a.click()
+    URL.revokeObjectURL(url)
+  } catch {
+    downloadError.value = 'Помилка завантаження. Спробуйте пізніше.'
+  } finally {
+    downloading.value = false
+  }
+}
+
+async function resetDesktopToken() {
+  resettingToken.value = true
+  try {
+    await authApi.resetDesktopToken()
+    tokenResetDone.value = true
+    setTimeout(() => (tokenResetDone.value = false), 3000)
+  } catch {
+    // ignore
+  } finally {
+    resettingToken.value = false
+  }
+}
+
 const name = ref(auth.user?.name ?? '')
 const password = ref('')
 const saving = ref(false)
@@ -104,23 +140,6 @@ function maskKey(key: string) {
     <div class="grid grid-cols-2 gap-6">
       <!-- Left column: subscription + personal data -->
       <div class="flex flex-col gap-4">
-        <!-- Subscription status -->
-        <div
-          class="p-4 rounded-xl border"
-          :class="auth.hasSubscription ? 'border-green-600/50 bg-green-900/20' : 'border-yellow-600/50 bg-yellow-900/20'"
-        >
-          <p class="text-sm font-medium" :class="auth.hasSubscription ? 'text-green-400' : 'text-yellow-400'">
-            {{ auth.hasSubscription ? 'Підписка активна' : 'Підписка відсутня' }}
-          </p>
-          <p v-if="auth.hasSubscription && auth.subscription?.ends_at" class="text-xs text-gray-400 mt-1">
-            Дійсна до: {{ new Date(auth.subscription.ends_at).toLocaleDateString('uk-UA') }}
-          </p>
-          <p v-else-if="!auth.hasSubscription" class="text-xs text-gray-400 mt-1">
-            Зверніться до адміна в
-            <a href="https://t.me/your_telegram" target="_blank" class="underline text-yellow-300">Telegram</a>
-          </p>
-        </div>
-
         <!-- Profile form -->
         <div class="bg-gray-800 rounded-xl border border-gray-700 p-5">
           <h2 class="text-sm font-semibold text-gray-200 mb-4">Особисті дані</h2>
@@ -220,6 +239,40 @@ function maskKey(key: string) {
           </button>
         </div>
       </div>
+    </div>
+
+    <!-- Desktop app download -->
+    <div class="mt-6 bg-gray-800 rounded-xl border border-gray-700 p-5">
+      <h2 class="text-sm font-semibold text-gray-200 mb-1">Десктопна програма</h2>
+      <p class="text-xs text-gray-400 mb-4">
+        Завантажте програму Nova Poshta Scanner. При скачуванні у програму автоматично вбудовується ваш обліковий токен.
+      </p>
+      <div class="flex items-center gap-3 flex-wrap">
+        <button
+          @click="downloadApp"
+          :disabled="downloading"
+          class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-sm px-4 py-2 rounded-lg transition"
+        >
+          <svg v-if="!downloading" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+          </svg>
+          <svg v-else class="w-4 h-4 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+          </svg>
+          {{ downloading ? 'Завантаження...' : 'Завантажити програму' }}
+        </button>
+
+        <button
+          @click="resetDesktopToken"
+          :disabled="resettingToken"
+          class="text-xs text-gray-400 hover:text-red-400 disabled:opacity-50 transition underline"
+          title="Скидання токену інвалідує стару програму — після цього треба перезавантажити"
+        >
+          {{ tokenResetDone ? 'Токен скинуто' : resettingToken ? 'Скидаємо...' : 'Скинути токен' }}
+        </button>
+      </div>
+      <p v-if="downloadError" class="text-red-400 text-xs mt-2">{{ downloadError }}</p>
     </div>
   </div>
 </template>

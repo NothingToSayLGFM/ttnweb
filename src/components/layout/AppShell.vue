@@ -35,6 +35,13 @@ function logout() {
           Історія
         </RouterLink>
         <RouterLink
+          to="/credits"
+          class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-gray-200 hover:bg-gray-700 hover:text-white transition"
+          active-class="bg-gray-700 text-white"
+        >
+          Сканування
+        </RouterLink>
+        <RouterLink
           to="/profile"
           class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-gray-200 hover:bg-gray-700 hover:text-white transition"
           active-class="bg-gray-700 text-white"
@@ -62,6 +69,18 @@ function logout() {
       </nav>
 
       <div class="px-4 py-4 border-t border-gray-700">
+        <!-- Balance display -->
+        <div v-if="!auth.isAdmin" class="mb-3">
+          <p class="text-xs text-gray-400 mb-1">Сканувань залишилось</p>
+          <p :class="['text-sm font-semibold', auth.scanBalance <= 10 ? 'text-red-400' : 'text-white']">
+            {{ auth.scanBalance }}
+          </p>
+        </div>
+        <div v-else class="mb-3">
+          <p class="text-xs text-gray-400 mb-1">Сканувань залишилось</p>
+          <p class="text-sm font-semibold text-blue-400">∞</p>
+        </div>
+
         <p class="text-xs text-gray-400 truncate mb-2">{{ auth.user?.email }}</p>
         <button
           @click="logout"
@@ -74,16 +93,6 @@ function logout() {
 
     <!-- Main content -->
     <main class="flex-1 overflow-y-auto">
-      <!-- Subscription banner for non-subscribed users -->
-      <div
-        v-if="!auth.hasSubscription && !auth.isAdmin"
-        class="bg-yellow-900/40 border-b border-yellow-700/50 px-6 py-3 text-sm text-yellow-200 flex items-center gap-2"
-      >
-        У вас немає активної підписки. Зверніться до адміна в
-        <a href="https://t.me/your_telegram" target="_blank" class="underline text-yellow-300">Telegram</a>
-        для її отримання.
-      </div>
-
       <RouterView />
     </main>
   </div>

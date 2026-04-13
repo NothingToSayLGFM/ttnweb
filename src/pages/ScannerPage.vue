@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useNPStore } from '@/stores/np'
+import { useAuthStore } from '@/stores/auth'
 
 const np = useNPStore()
+const auth = useAuthStore()
 const rawInput = ref('')
 
 const ttnList = computed(() =>
@@ -12,10 +14,19 @@ const ttnList = computed(() =>
     .filter((t) => t.length > 0)
 )
 
+// Unique TTNs (duplicates won't be scanned against API)
+const uniqueTTNCount = computed(() => new Set(ttnList.value).size)
+
+const insufficientBalance = computed(() =>
+  !auth.isAdmin && uniqueTTNCount.value > 0 && auth.scanBalance < uniqueTTNCount.value
+)
+
 async function analyze() {
   if (ttnList.value.length === 0) return
   np.reset()
   await np.validate(ttnList.value)
+  // Refresh balance after scanning
+  await auth.loadMe()
 }
 
 async function distribute() {
@@ -51,10 +62,20 @@ function statusLabel(status: string) {
   <div class="p-6 h-full flex flex-col gap-6">
     <div class="flex items-center justify-between">
       <h1 class="text-xl font-semibold text-white">Scanner</h1>
-      <div class="flex gap-3">
+      <div class="flex items-center gap-3">
+        <!-- Balance indicator -->
+        <span v-if="!auth.isAdmin" class="text-sm text-gray-400">
+          Баланс:
+          <span :class="auth.scanBalance <= 10 ? 'text-red-400 font-medium' : 'text-white font-medium'">
+            {{ auth.scanBalance }}
+          </span>
+          сканувань
+        </span>
+        <span v-else class="text-sm text-gray-400">Баланс: <span class="text-blue-400 font-medium">∞</span></span>
+
         <button
           @click="analyze"
-          :disabled="np.loading || ttnList.length === 0"
+          :disabled="np.loading || ttnList.length === 0 || insufficientBalance"
           class="bg-blue-600 hover:bg-blue-700 disabled:opacity-40 text-white px-4 py-2 rounded-lg text-sm font-medium transition"
         >
           {{ np.loading ? 'Аналізуємо...' : 'Аналізувати' }}
@@ -67,6 +88,30 @@ function statusLabel(status: string) {
           {{ np.distributing ? 'Розподіляємо...' : 'Авторозподіл' }}
         </button>
       </div>
+    </div>
+
+    <!-- Insufficient balance warning -->
+    <div
+      v-if="insufficientBalance"
+      class="bg-red-900/40 border border-red-700/50 rounded-xl px-4 py-3 text-sm text-red-200 flex items-center justify-between"
+    >
+      <span>
+        Недостатньо сканувань: потрібно <strong>{{ uniqueTTNCount }}</strong>, доступно <strong>{{ auth.scanBalance }}</strong>.
+      </span>
+      <RouterLink to="/credits" class="underline text-red-300 hover:text-red-200 ml-4 shrink-0">
+        Поповнити →
+      </RouterLink>
+    </div>
+
+    <!-- Low balance warning -->
+    <div
+      v-else-if="!auth.isAdmin && auth.scanBalance <= 10 && auth.scanBalance > 0"
+      class="bg-yellow-900/40 border border-yellow-700/50 rounded-xl px-4 py-3 text-sm text-yellow-200 flex items-center justify-between"
+    >
+      <span>Залишилось мало сканувань: <strong>{{ auth.scanBalance }}</strong>.</span>
+      <RouterLink to="/credits" class="underline text-yellow-300 hover:text-yellow-200 ml-4 shrink-0">
+        Поповнити →
+      </RouterLink>
     </div>
 
     <div class="flex gap-6 flex-1 min-h-0">

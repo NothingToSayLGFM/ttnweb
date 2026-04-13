@@ -3,6 +3,7 @@ export interface User {
   email: string
   name: string
   role: 'user' | 'admin'
+  scan_balance: number
   created_at: string
 }
 

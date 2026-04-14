@@ -42,6 +42,13 @@ function logout() {
           Сканування
         </RouterLink>
         <RouterLink
+          to="/compare"
+          class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-gray-200 hover:bg-gray-700 hover:text-white transition"
+          active-class="bg-gray-700 text-white"
+        >
+          Порівняння
+        </RouterLink>
+        <RouterLink
           to="/profile"
           class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-gray-200 hover:bg-gray-700 hover:text-white transition"
           active-class="bg-gray-700 text-white"

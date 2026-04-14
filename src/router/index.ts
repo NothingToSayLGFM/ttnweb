@@ -16,6 +16,7 @@ const router = createRouter({
         { path: 'history/:id', component: () => import('@/pages/SessionDetailPage.vue') },
         { path: 'profile', component: () => import('@/pages/ProfilePage.vue') },
         { path: 'credits', component: () => import('@/pages/CreditsPage.vue') },
+        { path: 'compare', component: () => import('@/pages/ComparePage.vue') },
         {
           path: 'admin',
           meta: { requiresAdmin: true },

@@ -16,22 +16,6 @@ export interface NPAPIKey {
   created_at: string
 }
 
-export interface SubscriptionStatus {
-  active: boolean
-  starts_at?: string
-  ends_at?: string
-}
-
-export interface Subscription {
-  id: string
-  user_id: string
-  granted_by: string
-  starts_at: string
-  ends_at: string
-  note: string
-  created_at: string
-}
-
 export interface Session {
   id: string
   user_id: string

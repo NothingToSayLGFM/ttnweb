@@ -138,7 +138,7 @@ function maskKey(key: string) {
     <h1 class="text-xl font-semibold text-white mb-6">Профіль</h1>
 
     <div class="grid grid-cols-2 gap-6">
-      <!-- Left column: subscription + personal data -->
+      <!-- Left column: personal data -->
       <div class="flex flex-col gap-4">
         <!-- Profile form -->
         <div class="bg-gray-800 rounded-xl border border-gray-700 p-5">

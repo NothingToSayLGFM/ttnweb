@@ -7,6 +7,18 @@ const np = useNPStore()
 const auth = useAuthStore()
 const rawInput = ref('')
 
+function onFileImport(e: Event) {
+  const file = (e.target as HTMLInputElement).files?.[0]
+  if (!file) return
+  const reader = new FileReader()
+  reader.onload = (ev) => {
+    rawInput.value = ev.target?.result as string
+  }
+  reader.readAsText(file, 'utf-8')
+  // reset input so same file can be re-imported
+  ;(e.target as HTMLInputElement).value = ''
+}
+
 const ttnList = computed(() =>
   rawInput.value
     .split(/[\n,\s]+/)
@@ -117,11 +129,17 @@ function statusLabel(status: string) {
     <div class="flex gap-6 flex-1 min-h-0">
       <!-- Left: TTN input + results -->
       <div class="flex flex-col gap-4 flex-1">
-        <textarea
-          v-model="rawInput"
-          placeholder="Введіть ТТН по одному на рядок..."
-          class="w-full h-48 bg-gray-800 border border-gray-600 rounded-xl px-4 py-3 text-white placeholder-gray-500 text-sm font-mono focus:outline-none focus:border-blue-500 resize-none"
-        />
+        <div class="relative">
+          <textarea
+            v-model="rawInput"
+            placeholder="Введіть ТТН по одному на рядок..."
+            class="w-full h-48 bg-gray-800 border border-gray-600 rounded-xl px-4 py-3 text-white placeholder-gray-500 text-sm font-mono focus:outline-none focus:border-blue-500 resize-none"
+          />
+          <label class="absolute bottom-3 right-3 cursor-pointer bg-gray-700 hover:bg-gray-600 text-gray-300 hover:text-white text-xs px-3 py-1.5 rounded-lg transition">
+            Імпорт .txt
+            <input type="file" accept=".txt" class="hidden" @change="onFileImport" />
+          </label>
+        </div>
 
         <p v-if="np.error" class="text-red-400 text-sm">{{ np.error }}</p>
 

@@ -7,6 +7,7 @@ import type { NPAPIKey } from '@/types'
 const auth = useAuthStore()
 
 const downloading = ref(false)
+const downloadingZebra = ref(false)
 const downloadError = ref('')
 const resettingToken = ref(false)
 const tokenResetDone = ref(false)
@@ -26,6 +27,24 @@ async function downloadApp() {
     downloadError.value = 'Помилка завантаження. Спробуйте пізніше.'
   } finally {
     downloading.value = false
+  }
+}
+
+async function downloadZebraApp() {
+  downloadingZebra.value = true
+  downloadError.value = ''
+  try {
+    const response = await authApi.downloadZebraApp()
+    const url = URL.createObjectURL(response.data as Blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'ZebraScanner.zip'
+    a.click()
+    URL.revokeObjectURL(url)
+  } catch {
+    downloadError.value = 'Помилка завантаження. Спробуйте пізніше.'
+  } finally {
+    downloadingZebra.value = false
   }
 }
 
@@ -243,31 +262,63 @@ function maskKey(key: string) {
 
     <!-- Desktop app download -->
     <div class="mt-6 bg-gray-800 rounded-xl border border-gray-700 p-5">
-      <h2 class="text-sm font-semibold text-gray-200 mb-1">Десктопна програма</h2>
+      <h2 class="text-sm font-semibold text-gray-200 mb-1">Десктопні програми</h2>
       <p class="text-xs text-gray-400 mb-4">
-        Завантажте програму Nova Poshta Scanner. При скачуванні у програму автоматично вбудовується ваш обліковий токен.
+        При скачуванні у програму автоматично вбудовується ваш обліковий токен.
       </p>
-      <div class="flex items-center gap-3 flex-wrap">
-        <button
-          @click="downloadApp"
-          :disabled="downloading"
-          class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-sm px-4 py-2 rounded-lg transition"
-        >
-          <svg v-if="!downloading" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-          </svg>
-          <svg v-else class="w-4 h-4 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
-          </svg>
-          {{ downloading ? 'Завантаження...' : 'Завантажити програму' }}
-        </button>
 
+      <div class="flex flex-col gap-4">
+        <!-- Nova Poshta Scanner -->
+        <div class="flex items-center gap-3 flex-wrap">
+          <div class="flex-1 min-w-0">
+            <p class="text-sm text-white font-medium">Nova Poshta Scanner</p>
+            <p class="text-xs text-gray-400">Для ПК / ноутбука</p>
+          </div>
+          <button
+            @click="downloadApp"
+            :disabled="downloading"
+            class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-sm px-4 py-2 rounded-lg transition"
+          >
+            <svg v-if="!downloading" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
+            <svg v-else class="w-4 h-4 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+            </svg>
+            {{ downloading ? 'Завантаження...' : 'Завантажити' }}
+          </button>
+        </div>
+
+        <!-- Zebra Scanner -->
+        <div class="flex items-center gap-3 flex-wrap">
+          <div class="flex-1 min-w-0">
+            <p class="text-sm text-white font-medium">Zebra Scanner</p>
+            <p class="text-xs text-gray-400">Для ТСД Zebra TC26</p>
+          </div>
+          <button
+            @click="downloadZebraApp"
+            :disabled="downloadingZebra"
+            class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-sm px-4 py-2 rounded-lg transition"
+          >
+            <svg v-if="!downloadingZebra" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
+            <svg v-else class="w-4 h-4 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+            </svg>
+            {{ downloadingZebra ? 'Завантаження...' : 'Завантажити' }}
+          </button>
+        </div>
+      </div>
+
+      <div class="mt-4 pt-4 border-t border-gray-700">
         <button
           @click="resetDesktopToken"
           :disabled="resettingToken"
           class="text-xs text-gray-400 hover:text-red-400 disabled:opacity-50 transition underline"
-          title="Скидання токену інвалідує стару програму — після цього треба перезавантажити"
+          title="Скидання токену інвалідує обидві програми — після цього треба перезавантажити"
         >
           {{ tokenResetDone ? 'Токен скинуто' : resettingToken ? 'Скидаємо...' : 'Скинути токен' }}
         </button>

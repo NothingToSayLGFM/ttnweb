@@ -27,6 +27,9 @@ export const authApi = {
   downloadApp: () =>
     client.get('/me/download-app', { responseType: 'blob' }),
 
+  downloadZebraApp: () =>
+    client.get('/me/download-zebra-app', { responseType: 'blob' }),
+
   resetDesktopToken: () =>
     client.post<{ message: string }>('/me/reset-desktop-token'),
 }

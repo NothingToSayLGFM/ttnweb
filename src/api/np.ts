@@ -13,7 +13,7 @@ export const npApi = {
     client.post<{ results: ValidateResult[]; groups: Group[] }>('/np/validate', { ttns }),
 
   distribute: (sessionId: string, groups: DistributeInput[]) =>
-    client.post<{ results: DistributeResult[] }>('/np/distribute', {
+    client.post<{ results: DistributeResult[]; scan_balance: number }>('/np/distribute', {
       session_id: sessionId,
       groups,
     }),

@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { npApi, type DistributeInput } from '@/api/np'
 import { sessionApi } from '@/api/sessions'
+import { useAuthStore } from '@/stores/auth'
 import type { ValidateResult, Group, DistributeResult, SessionTTN } from '@/types'
 
 export const useNPStore = defineStore('np', () => {
@@ -52,6 +53,14 @@ export const useNPStore = defineStore('np', () => {
       }))
       const { data } = await npApi.distribute(currentSessionId.value, inputs)
       distributeResults.value = data.results
+
+      // Update balance from server response
+      if (data.scan_balance !== undefined && data.scan_balance !== -1) {
+        const auth = useAuthStore()
+        if (auth.user) {
+          auth.user = { ...auth.user, scan_balance: data.scan_balance }
+        }
+      }
 
       const sessionTTNs: Partial<SessionTTN>[] = data.results.map((r) => ({
         ttn: r.ttn,

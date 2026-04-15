@@ -33,6 +33,12 @@ const insufficientBalance = computed(() =>
   !auth.isAdmin && uniqueTTNCount.value > 0 && auth.scanBalance < uniqueTTNCount.value
 )
 
+const groupsTTNCount = computed(() => np.groups.reduce((sum, g) => sum + g.ttn_count, 0))
+
+const insufficientBalanceForDistribute = computed(() =>
+  !auth.isAdmin && groupsTTNCount.value > 0 && auth.scanBalance < groupsTTNCount.value
+)
+
 async function analyze() {
   if (ttnList.value.length === 0) return
   np.reset()
@@ -87,14 +93,14 @@ function statusLabel(status: string) {
 
         <button
           @click="analyze"
-          :disabled="np.loading || ttnList.length === 0 || insufficientBalance"
+          :disabled="np.loading || ttnList.length === 0"
           class="bg-blue-600 hover:bg-blue-700 disabled:opacity-40 text-white px-4 py-2 rounded-lg text-sm font-medium transition"
         >
           {{ np.loading ? 'Аналізуємо...' : 'Аналізувати' }}
         </button>
         <button
           @click="distribute"
-          :disabled="np.distributing || np.groups.length === 0"
+          :disabled="np.distributing || np.groups.length === 0 || insufficientBalanceForDistribute"
           class="bg-emerald-600 hover:bg-emerald-700 disabled:opacity-40 text-white px-4 py-2 rounded-lg text-sm font-medium transition"
         >
           {{ np.distributing ? 'Розподіляємо...' : 'Авторозподіл' }}
@@ -109,6 +115,19 @@ function statusLabel(status: string) {
     >
       <span>
         Недостатньо сканувань: потрібно <strong>{{ uniqueTTNCount }}</strong>, доступно <strong>{{ auth.scanBalance }}</strong>.
+      </span>
+      <RouterLink to="/credits" class="underline text-red-300 hover:text-red-200 ml-4 shrink-0">
+        Поповнити →
+      </RouterLink>
+    </div>
+
+    <!-- Insufficient balance for distribute warning -->
+    <div
+      v-else-if="insufficientBalanceForDistribute"
+      class="bg-red-900/40 border border-red-700/50 rounded-xl px-4 py-3 text-sm text-red-200 flex items-center justify-between"
+    >
+      <span>
+        Недостатньо сканувань для розподілу: потрібно <strong>{{ groupsTTNCount }}</strong>, доступно <strong>{{ auth.scanBalance }}</strong>.
       </span>
       <RouterLink to="/credits" class="underline text-red-300 hover:text-red-200 ml-4 shrink-0">
         Поповнити →

@@ -271,7 +271,7 @@ function maskKey(key: string) {
         <!-- Nova Poshta Scanner -->
         <div class="flex items-center gap-3 flex-wrap">
           <div class="flex-1 min-w-0">
-            <p class="text-sm text-white font-medium">Nova Poshta Scanner</p>
+            <p class="text-sm text-white font-medium">TTN Сканер</p>
             <p class="text-xs text-gray-400">Для ПК / ноутбука</p>
           </div>
           <button
@@ -293,7 +293,7 @@ function maskKey(key: string) {
         <!-- Zebra Scanner -->
         <div class="flex items-center gap-3 flex-wrap">
           <div class="flex-1 min-w-0">
-            <p class="text-sm text-white font-medium">Zebra Scanner</p>
+            <p class="text-sm text-white font-medium">TTN Сканер</p>
             <p class="text-xs text-gray-400">Для ТСД Zebra TC26</p>
           </div>
           <button

@@ -19,6 +19,9 @@ export interface NPAPIKey {
 export interface Session {
   id: string
   user_id: string
+  user_email?: string
+  user_name?: string
+  device_type: 'web' | 'desktop' | 'zebra'
   started_at: string
   finished_at?: string
   ttn_count: number

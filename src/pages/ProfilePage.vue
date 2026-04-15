@@ -20,7 +20,7 @@ async function downloadApp() {
     const url = URL.createObjectURL(response.data as Blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = 'NovaPoshtaScanner.zip'
+    a.download = 'TTNScanner.zip'
     a.click()
     URL.revokeObjectURL(url)
   } catch {

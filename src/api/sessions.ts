@@ -16,6 +16,12 @@ export const sessionApi = {
   finish: (id: string, ttns: Partial<SessionTTN>[], status = 'done') =>
     client.patch<Session>(`/sessions/${id}`, { status, ttns }),
 
+  delete: (id: string) =>
+    client.delete(`/sessions/${id}`),
+
   adminList: (limit = 20, offset = 0) =>
     client.get<Paginated<Session>>('/admin/sessions', { params: { limit, offset } }),
+
+  adminDelete: (id: string) =>
+    client.delete(`/admin/sessions/${id}`),
 }

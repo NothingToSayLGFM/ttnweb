@@ -8,6 +8,7 @@ const router = useRouter()
 const sessions = ref<Session[]>([])
 const total = ref(0)
 const loading = ref(true)
+const deleting = ref<string | null>(null)
 
 onMounted(async () => {
   try {
@@ -25,6 +26,18 @@ function formatDate(d: string) {
 
 function statusColor(s: string) {
   return s === 'done' ? 'text-green-400' : s === 'error' ? 'text-red-400' : 'text-yellow-400'
+}
+
+async function deleteSession(id: string) {
+  if (!confirm('Видалити сесію?')) return
+  deleting.value = id
+  try {
+    await sessionApi.delete(id)
+    sessions.value = sessions.value.filter(s => s.id !== id)
+    total.value--
+  } finally {
+    deleting.value = null
+  }
 }
 </script>
 
@@ -56,12 +69,27 @@ function statusColor(s: string) {
             <td class="px-4 py-3 text-white font-medium">{{ s.ttn_count }}</td>
             <td :class="['px-4 py-3 font-medium', statusColor(s.status)]">{{ s.status }}</td>
             <td class="px-4 py-3">
-              <button
-                @click="router.push(`/history/${s.id}`)"
-                class="text-blue-400 hover:underline text-xs"
-              >
-                Деталі
-              </button>
+              <div class="flex items-center gap-3 justify-end">
+                <button
+                  @click="router.push(`/history/${s.id}`)"
+                  class="text-blue-400 hover:underline text-xs"
+                >
+                  Деталі
+                </button>
+                <button
+                  @click="deleteSession(s.id)"
+                  :disabled="deleting === s.id"
+                  class="text-gray-600 hover:text-red-400 transition disabled:opacity-40"
+                  title="Видалити"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="3 6 5 6 21 6"/>
+                    <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                    <path d="M10 11v6M14 11v6"/>
+                    <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+                  </svg>
+                </button>
+              </div>
             </td>
           </tr>
         </tbody>

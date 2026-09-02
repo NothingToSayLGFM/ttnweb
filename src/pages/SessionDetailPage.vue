@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { sessionApi } from '@/api/sessions'
 import type { Session, SessionTTN } from '@/types'
@@ -18,6 +18,13 @@ onMounted(async () => {
     loading.value = false
   }
 })
+
+function formatScannedAt(d?: string) {
+  if (!d) return '—'
+  return new Date(d).toLocaleString('uk-UA', { dateStyle: 'short', timeStyle: 'medium' })
+}
+
+const hasScanTimes = computed(() => ttns.value.some((t) => t.scanned_at))
 
 function statusColor(s: string) {
   const map: Record<string, string> = {
@@ -54,6 +61,7 @@ function statusColor(s: string) {
               <th class="text-left px-4 py-3">Статус</th>
               <th class="text-left px-4 py-3">Реєстр</th>
               <th class="text-left px-4 py-3">Повідомлення</th>
+              <th v-if="hasScanTimes" class="text-left px-4 py-3">Час скану</th>
             </tr>
           </thead>
           <tbody>
@@ -62,6 +70,7 @@ function statusColor(s: string) {
               <td :class="['px-4 py-2.5 text-xs font-medium', statusColor(t.status)]">{{ t.status }}</td>
               <td class="px-4 py-2.5 text-gray-400 text-xs">{{ t.registry || '—' }}</td>
               <td class="px-4 py-2.5 text-gray-500 text-xs">{{ t.message || '—' }}</td>
+              <td v-if="hasScanTimes" class="px-4 py-2.5 text-gray-400 text-xs font-mono whitespace-nowrap">{{ formatScannedAt(t.scanned_at) }}</td>
             </tr>
           </tbody>
         </table>

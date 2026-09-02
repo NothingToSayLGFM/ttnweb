@@ -35,6 +35,8 @@ export interface SessionTTN {
   status: string
   message?: string
   registry?: string
+  /** Moment the TTN was scanned on a Zebra handheld; absent for file/paste sessions. */
+  scanned_at?: string
   created_at: string
 }
 

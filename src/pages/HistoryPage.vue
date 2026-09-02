@@ -2,23 +2,35 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { sessionApi } from '@/api/sessions'
+import Pagination from '@/components/ui/Pagination.vue'
 import type { Session } from '@/types'
+
+const PAGE_SIZE = 20
 
 const router = useRouter()
 const sessions = ref<Session[]>([])
 const total = ref(0)
+const page = ref(0)
 const loading = ref(true)
 const deleting = ref<string | null>(null)
 
-onMounted(async () => {
+async function load() {
+  loading.value = true
   try {
-    const { data } = await sessionApi.list(20, 0)
+    const { data } = await sessionApi.list(PAGE_SIZE, page.value * PAGE_SIZE)
     sessions.value = data.data ?? []
     total.value = data.total
   } finally {
     loading.value = false
   }
-})
+}
+
+function changePage(p: number) {
+  page.value = p
+  load()
+}
+
+onMounted(load)
 
 function formatDate(d: string) {
   return new Date(d).toLocaleString('uk-UA', { dateStyle: 'short', timeStyle: 'short' })
@@ -33,8 +45,11 @@ async function deleteSession(id: string) {
   deleting.value = id
   try {
     await sessionApi.delete(id)
-    sessions.value = sessions.value.filter(s => s.id !== id)
-    total.value--
+    // If we just removed the last row on a non-first page, step back.
+    if (sessions.value.length === 1 && page.value > 0) {
+      page.value--
+    }
+    await load()
   } finally {
     deleting.value = null
   }
@@ -43,7 +58,9 @@ async function deleteSession(id: string) {
 
 <template>
   <div class="p-6">
-    <h1 class="text-xl font-semibold text-white mb-6">Історія сесій</h1>
+    <h1 class="text-xl font-semibold text-white mb-6">
+      Історія сесій<span v-if="total" class="text-gray-500 font-normal"> ({{ total }})</span>
+    </h1>
 
     <div v-if="loading" class="text-gray-500">Завантаження...</div>
 
@@ -94,6 +111,14 @@ async function deleteSession(id: string) {
           </tr>
         </tbody>
       </table>
+
+      <Pagination
+        :page="page"
+        :page-size="PAGE_SIZE"
+        :total="total"
+        :disabled="loading"
+        @update:page="changePage"
+      />
     </div>
   </div>
 </template>

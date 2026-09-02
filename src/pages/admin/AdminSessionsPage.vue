@@ -2,23 +2,35 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { sessionApi } from '@/api/sessions'
+import Pagination from '@/components/ui/Pagination.vue'
 import type { Session } from '@/types'
+
+const PAGE_SIZE = 50
 
 const router = useRouter()
 const sessions = ref<Session[]>([])
 const total = ref(0)
+const page = ref(0)
 const loading = ref(true)
 const deleting = ref<string | null>(null)
 
-onMounted(async () => {
+async function load() {
+  loading.value = true
   try {
-    const { data } = await sessionApi.adminList(50, 0)
+    const { data } = await sessionApi.adminList(PAGE_SIZE, page.value * PAGE_SIZE)
     sessions.value = data.data ?? []
     total.value = data.total
   } finally {
     loading.value = false
   }
-})
+}
+
+function changePage(p: number) {
+  page.value = p
+  load()
+}
+
+onMounted(load)
 
 function statusColor(s: string) {
   return s === 'done' ? 'text-green-400' : s === 'error' ? 'text-red-400' : 'text-yellow-400'
@@ -41,8 +53,10 @@ async function deleteSession(id: string) {
   deleting.value = id
   try {
     await sessionApi.adminDelete(id)
-    sessions.value = sessions.value.filter(s => s.id !== id)
-    total.value--
+    if (sessions.value.length === 1 && page.value > 0) {
+      page.value--
+    }
+    await load()
   } finally {
     deleting.value = null
   }
@@ -102,6 +116,14 @@ async function deleteSession(id: string) {
           </tr>
         </tbody>
       </table>
+
+      <Pagination
+        :page="page"
+        :page-size="PAGE_SIZE"
+        :total="total"
+        :disabled="loading"
+        @update:page="changePage"
+      />
     </div>
   </div>
 </template>
